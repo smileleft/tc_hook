@@ -13,7 +13,7 @@ char _license[] SEC("license") = "GPL"; // Required license declaration
 
 // TC ingress hook
 //SEC("tc") // Section name for TC programs
-__section("classifier") __used 
+__attribute__((section("classifier"), used))
 int tc_block_prog(struct __sk_buff *skb) {
     void *data_end = (void *)(long)skb->data_end;
     void *data = (void *)(long)skb->data;
