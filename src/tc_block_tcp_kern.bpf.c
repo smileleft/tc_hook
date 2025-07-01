@@ -33,9 +33,13 @@ int tc_block_prog(struct __sk_buff *skb) {
 
     // Start of IP header
     struct iphdr *ip = (void *)(eth + 1);
-    if ((void *)ip + (ip->ihl * 4) > data_end) {
+    if ((void *)ip + sizeof(*ip) > data_end) {
         // Malformed IP header or insufficient data, pass
         return TC_ACT_OK;
+    }
+
+    if ((void *)ip + (ip->ihl * 4) > data_end) {
+    	return TC_ACT_OK;
     }
 
     // Check if it's a TCP packet
@@ -46,8 +50,13 @@ int tc_block_prog(struct __sk_buff *skb) {
 
     // Start of TCP header
     struct tcphdr *tcp = (void *)ip + (ip->ihl * 4);
-    if ((void *)tcp + (tcp->doff * 4) > data_end) {
+    if ((void *)tcp + sizeof(*tcp) > data_end) {
         // Malformed TCP header or insufficient data, pass
+        return TC_ACT_OK;
+    }
+
+    if ((void *)tcp + (tcp->doff * 4) > data_end) {
+        //bpf_printk("TC: TCP Hdr var length too short\n");
         return TC_ACT_OK;
     }
 
