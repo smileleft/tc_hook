@@ -48,23 +48,6 @@ int tc_block_prog(struct __sk_buff *skb) {
         return TC_ACT_OK;
     }
 
-    // Start of TCP header
-    struct tcphdr *tcp = (void *)ip + (ip->ihl * 4);
-    if ((void *)tcp + sizeof(*tcp) > data_end) {
-        // Malformed TCP header or insufficient data, pass
-        return TC_ACT_OK;
-    }
 
-    if ((void *)tcp + (tcp->doff * 4) > data_end) {
-        //bpf_printk("TC: TCP Hdr var length too short\n");
-        return TC_ACT_OK;
-    }
-
-    // Check if destination port matches our BLOCK_TCP_PORT
-    if (bpf_ntohs(tcp->dest) == BLOCK_TCP_PORT) {
-        bpf_printk("TC: Blocking TCP packet to port %d\n", BLOCK_TCP_PORT);
-        return TC_ACT_SHOT; // Drop the packet
-    }
-
-    return TC_ACT_OK; // Otherwise, pass the packet
+    return TC_ACT_SHOT;
 }
